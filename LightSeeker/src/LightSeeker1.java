@@ -75,8 +75,11 @@ public class LightSeeker1 {
         double mot_amplif_smaller = 1.2*0.3;
         double left_field = 0;
         double right_field = 0;
-        EV3UltrasonicSensor ultraSensor = new EV3UltrasonicSensor(SensorPort.S1);
+//        EV3UltrasonicSensor ultraSensor = new EV3UltrasonicSensor(SensorPort.S1);
         EV3ColorSensor evColour = new EV3ColorSensor(SensorPort.S2);
+        
+        int state = 0;
+        
         // Grab frame
         video.grabFrame(frame);
     	// Extract luminanceFrame
@@ -120,31 +123,50 @@ public class LightSeeker1 {
         	left_field = (aLightFeat.meanLeft/255)*180;
         	
         	//Ultrasonic sensor here
-        	while(ultraSensor.isEnabled()){
-    			ultraSensor.getDistanceMode().fetchSample(onDist, 0);
-    			//if distance is less than 0.2
-    			if(onDist[0] < 0.15){
-    				motorB.stop();
-        			motorC.stop();
-    			}
-    		}
+//    			ultraSensor.getDistanceMode().fetchSample(onDist, 0);
+//    			//if distance is less than 0.2
+//    			if(onDist[0] < 0.20){
+//    				motorB.stop();
+//        			motorC.stop();
+//    			}
         	
         	//colour sensor code here uncomment to use
-//        	if(sample[0] <= 0.19) {
-//        		state = 1;
-//        	} else if(sample[0] > 0.20 && sample[0] < 0.26){
-//        		motorB.stop();
-//        		motorC.stop();
-////        		makeSound.twoBeeps();
-//        	}else{
-//        		state = 1;
-//        	}
+        	if(sample[0] <= 0.05) {
+        		//very dark look for light
+        		state = 0;
+        		
+        	} else if(sample[0] <= 0.05 && right_field < 50 && left_field < 50){
+        		state = 1;
+        	} 
+        	else if(sample[0] > 0.20 && sample[0] < 0.26){
+        		state = 3;
+        	}else{
+        		state = 2; 
+        	}
         	
         	//try or here maybe
         	//try increase the number here to 70 or something
-        	if((right_field < 50) || (left_field < 50)){
+        	
+        	if (state == 0){
+        		//very dark
+        		right_field = right_field + 60;
+        		left_field = left_field + 60;
+        		motorB.forward();
+        		motorC.forward();
+        	} else if(state == 1){
         		right_field = right_field + 75;
+        	} else if(state == 2){
+        		//normal light seeking
+        		right_field = right_field + 75;
+        	} else if(state ==3){
+        		motorB.stop();
+        		motorC.stop();
+//        		makeSound.twoBeeps();
+        	} else{
+        		//error
+        		System.out.println("Error");
         	}
+        	
         	if (right_field > left_field) {
         		left_field = right_field * mot_amplif_larger;
         		right_field = left_field * mot_amplif_smaller;
@@ -154,8 +176,8 @@ public class LightSeeker1 {
         	}
         	// B = left motor
         	// C = right motor
-        	motorC.setPower((int) (right_field/1.5)); 
-        	motorB.setPower((int) (left_field/1.5)); 
+        	motorC.setPower((int) (right_field/2)); 
+        	motorB.setPower((int) (left_field/2)); 
         	motorB.forward();
         	motorC.forward();
         	
