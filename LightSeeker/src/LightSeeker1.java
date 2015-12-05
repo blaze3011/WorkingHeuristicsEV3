@@ -75,7 +75,7 @@ public class LightSeeker1 {
         double mot_amplif_smaller = 1.2*0.3;
         double left_field = 0;
         double right_field = 0;
-//        EV3UltrasonicSensor ultraSensor = new EV3UltrasonicSensor(SensorPort.S1);
+        EV3UltrasonicSensor ultraSensor = new EV3UltrasonicSensor(SensorPort.S1);
         EV3ColorSensor evColour = new EV3ColorSensor(SensorPort.S2);
         
         int state = 0;
@@ -123,12 +123,12 @@ public class LightSeeker1 {
         	left_field = (aLightFeat.meanLeft/255)*180;
         	
         	//Ultrasonic sensor here
-//    			ultraSensor.getDistanceMode().fetchSample(onDist, 0);
-//    			//if distance is less than 0.2
-//    			if(onDist[0] < 0.20){
-//    				motorB.stop();
-//        			motorC.stop();
-//    			}
+    			ultraSensor.getDistanceMode().fetchSample(onDist, 0);
+    			//if distance is less than 0.2
+    			if(onDist[0] < 0.20){
+    				motorB.stop();
+        			motorC.stop();
+    			}
         	
         	//colour sensor code here uncomment to use
         	if(sample[0] <= 0.05) {
